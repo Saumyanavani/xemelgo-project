@@ -9,6 +9,7 @@ import LoginPage from './pages/LoginPage'
 function ProtectedRoute() {
   const { activeUser } = useAuth()
 
+  // Guard authenticated routes so login stays the single entry point.
   if (!activeUser) {
     return <Navigate to="/login" replace />
   }
@@ -19,6 +20,7 @@ function ProtectedRoute() {
 function HomeRedirect() {
   const { activeUser } = useAuth()
 
+  // Send users to the correct landing page based on whether a session user exists.
   return <Navigate to={activeUser ? '/dashboard' : '/login'} replace />
 }
 
@@ -55,6 +57,7 @@ function AppRoutes() {
 
 export default function App() {
   return (
+    // Keep session state above the router because every authenticated page needs the active user.
     <AuthProvider>
       <BrowserRouter>
         <AppRoutes />

@@ -29,6 +29,7 @@ export default function ItemDetailPage() {
   }, [itemId])
 
   async function loadPageData() {
+    // Refresh the full detail payload after every mutation so summary and history stay in sync.
     const [loadedDetail, loadedLocations] = await Promise.all([getItemDetail(itemId), getLocations()])
 
     setDetail(loadedDetail)
@@ -76,6 +77,7 @@ export default function ItemDetailPage() {
     }
 
     setIsSubmitting(true)
+    // Location actions move the item back into an active state and append both histories.
     await applyAction(itemId, currentUser.id, itemDetail.item.locationActionType, selectedLocationId)
     await loadPageData()
     setIsSubmitting(false)
@@ -83,6 +85,7 @@ export default function ItemDetailPage() {
 
   async function handleTerminalAction() {
     setIsSubmitting(true)
+    // Terminal actions clear the current location and append only action history.
     await applyAction(itemId, currentUser.id, itemDetail.item.terminalActionType)
     await loadPageData()
     setIsSubmitting(false)
@@ -190,6 +193,7 @@ export default function ItemDetailPage() {
                       <tr
                         key={event.id}
                         className={isHighlighted ? 'is-highlighted' : undefined}
+                        // Match all repeated locations so the interviewer can see the grouping behavior quickly.
                         onClick={() =>
                           setSelectedHistoryLocation((current) =>
                             current === event.locationId ? null : event.locationId,
@@ -233,6 +237,7 @@ export default function ItemDetailPage() {
                       <tr
                         key={event.id}
                         className={isHighlighted ? 'is-highlighted' : undefined}
+                        // Match all repeated users so the action-history grouping mirrors the brief.
                         onClick={() =>
                           setSelectedHistoryUser((current) => (current === event.userId ? null : event.userId))
                         }

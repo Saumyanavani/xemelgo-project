@@ -27,6 +27,7 @@ class XemelgoDatabase extends Dexie {
   constructor() {
     super('xemelgo-dashboard')
 
+    // IndexedDB gives the take-home a real local database without requiring a backend.
     this.version(1).stores({
       users: 'id',
       locations: 'id',
@@ -186,6 +187,7 @@ function createSeedRecords() {
   const locationEvents: LocationEvent[] = []
   const actionEvents: ActionEvent[] = []
 
+  // Seed histories are shaped to match the mockups so the first load feels presentation-ready.
   for (const item of ITEMS) {
     const locationPattern = LOCATION_HISTORY_PATTERN[item.currentLocationId ?? 'location-1']
     const seededActionType = getLocationActionType(item.solutionType)
@@ -244,6 +246,7 @@ export async function seedIfEmpty() {
   const existingCount = await db.items.count()
   const currentVersion = localStorage.getItem(SEED_VERSION_KEY)
 
+  // Version the seed so the demo can be reset or refreshed deterministically while iterating.
   if (existingCount > 0 && currentVersion === SEED_VERSION) {
     return
   }
@@ -291,6 +294,7 @@ export async function getAllItems(): Promise<DashboardItemView[]> {
   const [items, locations] = await Promise.all([db.items.toArray(), db.locations.toArray()])
   const locationsById = new Map(locations.map((location) => [location.id, location]))
 
+  // Shape raw records into exactly what the dashboard table needs so the page stays simple.
   return items
     .sort((left, right) => left.id.localeCompare(right.id))
     .map((item) => ({
@@ -321,6 +325,7 @@ export async function getItemDetail(itemId: string): Promise<ItemDetailView | nu
   const locationsById = new Map(locations.map((location) => [location.id, location]))
   const usersById = new Map(users.map((user) => [user.id, user]))
 
+  // The detail page consumes a view model with resolved names and pre-sorted history rows.
   return {
     item: {
       ...item,
@@ -372,11 +377,13 @@ export async function applyAction(itemId: string, userId: string, actionType: Ac
   const nextLocationId = isLocationAction(actionType) ? locationId ?? null : null
 
   await db.transaction('rw', db.items, db.locationEvents, db.actionEvents, async () => {
+    // Every action updates the item snapshot first so dashboard and detail reads stay consistent.
     await db.items.update(itemId, {
       status: nextStatus,
       currentLocationId: nextStatus === 'active' ? nextLocationId : null,
     })
 
+    // Location actions write to both history tables and reactivate the item.
     if (isLocationAction(actionType) && nextLocationId) {
       await db.locationEvents.add({
         id: crypto.randomUUID(),
@@ -386,6 +393,7 @@ export async function applyAction(itemId: string, userId: string, actionType: Ac
       })
     }
 
+    // Terminal actions only append action history because the item's location becomes NA.
     await db.actionEvents.add({
       id: crypto.randomUUID(),
       itemId,

@@ -10,11 +10,13 @@ export default function DashboardPage() {
 
   useEffect(() => {
     void (async () => {
+      // Load the flattened table rows once; all persistence already lives in the data service.
       setItems(await getAllItems())
     })()
   }, [])
 
   function toggleSolution(solutionType: SolutionType) {
+    // Re-clicking the same solution clears the visual grouping highlight.
     setSelectedSolution((current) => (current === solutionType ? null : solutionType))
   }
 

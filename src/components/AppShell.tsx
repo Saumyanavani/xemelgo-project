@@ -13,6 +13,7 @@ export default function AppShell() {
   }
 
   async function handleUserChange(userId: string) {
+    // Keep the acting user in the shell because detail-page actions depend on it globally.
     await selectUser(userId)
   }
 
@@ -25,6 +26,7 @@ export default function AppShell() {
 
     await resetDemo()
 
+    // After reseeding, route back to the dashboard so the user sees the baseline state immediately.
     if (location.pathname !== '/dashboard') {
       navigate('/dashboard')
     }

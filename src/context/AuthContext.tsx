@@ -20,6 +20,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     void (async () => {
+      // Seed once on startup, then restore any previously selected acting user.
       await seedIfEmpty()
       const loadedUsers = await getUsers()
       const storedActiveUserId = getActiveUserId()
@@ -33,6 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   async function selectUser(id: string) {
+    // Keep acting user global because every new action-history entry depends on it.
     setActiveUserId(id)
     setActiveUserIdState(id)
 
@@ -42,6 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function resetDemo() {
+    // Preserve the acting user through resets so demo flows stay smooth during presentation.
     const preservedUserId = getActiveUserId()
     await resetDemoData()
     const loadedUsers = await getUsers()
