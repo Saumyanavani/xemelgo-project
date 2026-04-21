@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
+import SortableHeader from '../components/SortableHeader'
 import StatusBadge from '../components/StatusBadge'
 import TimestampCell from '../components/TimestampCell'
 import { applyAction, getItemDetail, getLocations } from '../data/dataService'
 import { useAuth } from '../context/AuthContext'
+import { useSortableTable } from '../hooks/useSortableTable'
 import type { ItemDetailView, Location } from '../types'
 
 const TERMINAL_STATUS_BY_ACTION = {
@@ -23,6 +25,8 @@ export default function ItemDetailPage() {
   const [selectedHistoryUser, setSelectedHistoryUser] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isMissing, setIsMissing] = useState(false)
+  const locSort = useSortableTable(detail?.locationHistory ?? [])
+  const actSort = useSortableTable(detail?.actionHistory ?? [])
 
   useEffect(() => {
     void loadPageData()
@@ -181,12 +185,12 @@ export default function ItemDetailPage() {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>Location</th>
-                    <th>Timestamp</th>
+                    <SortableHeader label="Location" columnKey="locationName" sortKey={locSort.sortKey} sortDirection={locSort.sortDirection} onSort={locSort.handleSort} />
+                    <SortableHeader label="Timestamp" columnKey="timestamp" sortKey={locSort.sortKey} sortDirection={locSort.sortDirection} onSort={locSort.handleSort} />
                   </tr>
                 </thead>
                 <tbody>
-                  {itemDetail.locationHistory.map((event) => {
+                  {locSort.sortedData.map((event) => {
                     const isHighlighted = selectedHistoryLocation === event.locationId
 
                     return (
@@ -224,13 +228,13 @@ export default function ItemDetailPage() {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>User</th>
-                    <th>Action</th>
-                    <th>Timestamp</th>
+                    <SortableHeader label="User" columnKey="userName" sortKey={actSort.sortKey} sortDirection={actSort.sortDirection} onSort={actSort.handleSort} />
+                    <SortableHeader label="Action" columnKey="actionLabel" sortKey={actSort.sortKey} sortDirection={actSort.sortDirection} onSort={actSort.handleSort} />
+                    <SortableHeader label="Timestamp" columnKey="timestamp" sortKey={actSort.sortKey} sortDirection={actSort.sortDirection} onSort={actSort.handleSort} />
                   </tr>
                 </thead>
                 <tbody>
-                  {itemDetail.actionHistory.map((event) => {
+                  {actSort.sortedData.map((event) => {
                     const isHighlighted = selectedHistoryUser === event.userId
 
                     return (

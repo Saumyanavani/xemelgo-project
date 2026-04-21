@@ -282,6 +282,34 @@ p {
   border-top-right-radius: 16px;
 }
 
+.sort-header-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-align: left;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.sort-header-btn:hover {
+  opacity: 0.85;
+}
+
+.sort-indicator {
+  font-size: 0.72rem;
+  opacity: 0.5;
+}
+
+.sort-header-btn.is-active .sort-indicator {
+  opacity: 1;
+}
+
 .data-table tbody tr {
   cursor: pointer;
   transition: background-color 180ms ease;

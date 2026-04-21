@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
+import SortableHeader from '../components/SortableHeader'
 import { getAllItems } from '../data/dataService'
+import { useSortableTable } from '../hooks/useSortableTable'
 import type { DashboardItemView, SolutionType } from '../types'
 
 export default function DashboardPage() {
   const [items, setItems] = useState<DashboardItemView[]>([])
   const [selectedSolution, setSelectedSolution] = useState<SolutionType | null>(null)
+  const { sortedData, sortKey, sortDirection, handleSort } = useSortableTable(items)
 
   useEffect(() => {
     void (async () => {
@@ -46,14 +49,14 @@ export default function DashboardPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Item</th>
-                <th>Solution</th>
-                <th>Location</th>
+                <SortableHeader label="Item" columnKey="name" sortKey={sortKey} sortDirection={sortDirection} onSort={handleSort} />
+                <SortableHeader label="Solution" columnKey="solutionLabel" sortKey={sortKey} sortDirection={sortDirection} onSort={handleSort} />
+                <SortableHeader label="Location" columnKey="locationName" sortKey={sortKey} sortDirection={sortDirection} onSort={handleSort} />
                 <th aria-label="Details column" />
               </tr>
             </thead>
             <tbody>
-              {items.map((item) => {
+              {sortedData.map((item) => {
                 const isHighlighted = item.solutionType === selectedSolution
 
                 return (
